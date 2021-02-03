@@ -291,6 +291,22 @@ tasks:
                 - record_type: "{managed}Course_Enrollment__c.Student"
                   default: true
 
+    #   TASKGROUP: SNOWFAKERY
+
+    generate_eda_snowfakery_accounts:
+        class_path: cumulusci.tasks.bulkdata.generate_and_load_data_from_yaml.GenerateAndLoadDataFromYaml
+        options:
+            generator_yaml: datasets/salesforce/Account.recipe.yml
+            num_records: 100
+            num_records_tablename: Account
+
+    generate_eda_snowfakery_contacts:
+        class_path: cumulusci.tasks.bulkdata.generate_and_load_data_from_yaml.GenerateAndLoadDataFromYaml
+        options:
+            generator_yaml: datasets/salesforce/Contact.recipe.yml
+            num_records: 100
+            num_records_tablename: Contact
+
 flows:
     setup_encryption:
         description: Sets up Shield Platform Encryption in the target Org. It is recommended that this flow be run in developer scratch orgs only.
@@ -394,6 +410,8 @@ flows:
                 task: deploy_qa_config
             7:
                 flow: eda_settings_unmanaged
+            8:
+                flow: generate_snowfakery_data
 
     config_regression:
         # description: Configure an org for QA regression after the package is installed.
@@ -567,6 +585,16 @@ flows:
         steps:
             0.1:
                 flow: translations
+
+    #   FLOWGROUP: SNOWFAKERY
+    generate_snowfakery_data:
+        description: generate snowfakery testdata from recipes in datasets folder.
+        steps:
+            1:
+                task: generate_eda_snowfakery_accounts
+            2: 
+                task: generate_eda_snowfakery_contacts
+        
 
 services:
     mockaroo:
